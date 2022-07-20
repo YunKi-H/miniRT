@@ -8,9 +8,11 @@
 # include <stdio.h>
 // printf perror strerror
 # include <fcntl.h>
-// open close read
+// open close
 # include <math.h>
 
 #include "../libft/libft.h"
+
+void	ft_error(const char *errmsg, int errcode);
 
 #endif

@@ -8,12 +8,7 @@ CC				=	cc
 CFLAGS			=	-Wall -Wextra -Werror
 RM				=	rm -f
 
-SRCS			=	so_long.c		\
-					parse_ber.c		\
-					game_maker.c	\
-					key_press.c		\
-					valid_check.c	\
-					get_next_line.c	\
+SRCS			=	minirt.c	\
 
 OBJS			=	$(SRCS:.c=.o)
 
