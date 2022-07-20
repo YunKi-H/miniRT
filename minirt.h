@@ -11,4 +11,6 @@
 // open close read
 # include <math.h>
 
+#include "../libft/libft.h"
+
 #endif
