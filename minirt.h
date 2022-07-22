@@ -10,8 +10,9 @@
 # include <fcntl.h>
 // open close
 # include <math.h>
-
-#include "../libft/libft.h"
+// sqrt pow fmax ..
+# include "../libft/libft.h"
+# include "get_next_line.h"
 
 void	ft_error(const char *errmsg, int errcode);
 
