@@ -21,11 +21,14 @@ $(NAME)			:	$(OBJS)
 all				:	$(NAME)
 
 %.o				:	%.c
-					$(CC) $(CFLAGS) -o $@ -c $< -I.
+					$(CC) $(CFLAGS) -o $@ -c $< -I./include/
 
 clean			:
 					$(MAKE) -C $(LIBFTDIR) fclean
 					$(MAKE) -C $(MINILIBXDIR) clean
+					$(RM) $(MINILIBXDIR)/mlx_image.swiftsourceinfo
+					$(RM) $(MINILIBXDIR)/mlx_init.swiftsourceinfo
+					$(RM) $(MINILIBXDIR)/mlx_window.swiftsourceinfo
 					$(RM) $(OBJS)
 
 fclean			:	clean
