@@ -109,9 +109,13 @@ struct s_scene
 	t_camera	camera;
 	t_light		light;
 	t_obj		*objs;
+	void		*mlx;
+	void		*win;
 };
 
 // utils
 void	ft_error(const char *errmsg, int errcode);
+double	atod(char *str);
+double	ft_atod(char *str);
 
 #endif
