@@ -6,7 +6,9 @@
 # include <stdlib.h>
 // malloc free exit
 # include <stdio.h>
-// printf perror strerror
+// printf perror
+# include <string.h>
+// strerror
 # include <fcntl.h>
 // open close
 # include <math.h>
@@ -16,7 +18,7 @@
 
 typedef struct s_vec		t_vec;
 typedef struct s_vec		t_point;
-typedef struct s_color		t_color;
+typedef struct s_vec		t_color;
 typedef struct s_ambient	t_ambient;
 typedef struct s_camera		t_camera;
 typedef struct s_light		t_light;
@@ -45,13 +47,6 @@ struct s_vec
 	double	x;
 	double	y;
 	double	z;
-};
-
-struct s_color
-{
-	int	r;
-	int	g;
-	int	b;
 };
 
 struct s_ambient
@@ -113,9 +108,23 @@ struct s_scene
 	void		*win;
 };
 
+// vectors
+t_vec	vec3(double x, double y, double z);
+t_point	point3(double x, double y, double z);
+t_color	color3(double r, double g, double b);
+double	vlen(t_vec vec);
+double	vinner(t_vec vec1, t_vec vec2);
+t_vec	vouter(t_vec vec1, t_vec vec2);
+t_vec	vunit(t_vec vec);
+t_vec	vplus(t_vec vec1, t_vec vec2);
+t_vec	vminus(t_vec vec1, t_vec vec2);
+t_vec	vmult(t_vec vec1, t_vec vec2);
+t_vec	vdivide(t_vec vec1, t_vec vec2);
+t_vec	vmin(t_vec vec1, t_vec vec2);
+// parsing
+t_scene	*init_scene(const char *file);
 // utils
 void	ft_error(const char *errmsg, int errcode);
-double	atod(char *str);
 double	ft_atod(char *str);
 
 #endif
