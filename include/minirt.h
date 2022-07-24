@@ -36,7 +36,7 @@ enum e_bool
 
 enum e_type
 {
-	SPHERE,
+	SPHERE = 1,
 	PLANE,
 	CYLINDER
 };
@@ -129,6 +129,12 @@ t_color	read_rgb(char *rgb, const char *errmsg);
 void	read_element(char *line, t_scene *scene);
 void	read_ambient(char **element, t_scene *scene);
 void	read_camera(char **element, t_scene *scene);
+void	read_light(char **element, t_scene *scene);
+t_obj	*object(int type, void *element);
+void	obj_add_back(t_scene *scene, t_obj *new);
+void	read_sphere(char **element, t_scene *scene);
+void	read_plane(char **element, t_scene *scene);
+void	read_cylinder(char **elem, t_scene *scene);
 // utils
 void	ft_error(const char *errmsg, int errcode);
 double	ft_atod(char *str);
@@ -136,5 +142,6 @@ void	free_split(char **splited);
 int		ft_isdouble(char *str);
 int		ft_isint(char *str);
 int		ft_isrgb(double color);
+int		ft_isunit(double xyz);
 
 #endif

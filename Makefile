@@ -17,7 +17,7 @@ $(NAME)			:	$(OBJS)
 					$(MAKE) bonus -C $(LIBFTDIR)
 					$(MAKE) -C $(MINILIBXDIR)
 					cp $(MINILIBXDIR)/$(MINILIBXLIB) .
-					$(CC) -o $@ $^ $(LIBFTDIR)/$(LIBFTFILE) $(MINILIBXLIB)
+					$(CC) $(CFLAGS) -o $@ $^ $(LIBFTDIR)/$(LIBFTFILE) $(MINILIBXLIB)
 
 all				:	$(NAME)
 
