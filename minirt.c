@@ -167,25 +167,23 @@ t_scene	*init_scene(const char *file)
 			break ;
 		if (line[ft_strlen(line) - 1] == '\n')
 			line[ft_strlen(line) - 1] = '\0';
-		get_element(line, scene);
+		read_element(line, scene);
 		free(line);
 	}
 	return (scene);
 }
 
-void	get_element(char *line, t_scene *scene)
+void	read_element(char *line, t_scene *scene)
 {
 	char	**element;
 
 	element = ft_split(line, ' ');
-	printf("split element %s %s %s\n", element[0], element[1], element[2]);
 	if (!element[0])
-		printf("hello\n");
-	else if (!ft_strncmp(element[0], "A", -1))
-		get_ambient(element, scene);
-		// printf("hi\n");
-	else if (!ft_strncmp(element[0], "C", -1))
 		;
+	else if (!ft_strncmp(element[0], "A", -1))
+		read_ambient(element, scene);
+	else if (!ft_strncmp(element[0], "C", -1))
+		read_camera(element, scene);
 	else if (!ft_strncmp(element[0], "L", -1))
 		;
 	else if (!ft_strncmp(element[0], "sp", -1))
@@ -194,11 +192,10 @@ void	get_element(char *line, t_scene *scene)
 		;
 	else if (!ft_strncmp(element[0], "cy", -1))
 		;
-	printf("print ambient : %s %f %f,%f,%f\n", element[0], scene->ambient.ratio, scene->ambient.color.x, scene->ambient.color.y, scene->ambient.color.z);
 	free_split(element);
 }
 
-void	get_ambient(char **element, t_scene *scene)
+void	read_ambient(char **element, t_scene *scene)
 {
 	if (!element[1] || !element[2] || element[3])
 		ft_error("A [RATIO] [R,G,B]\n", 1);
@@ -207,8 +204,7 @@ void	get_ambient(char **element, t_scene *scene)
 	scene->ambient.ratio = ft_atod(element[1]);
 	if (scene->ambient.ratio < 0.0 || scene->ambient.ratio > 1.0)
 		ft_error("WRONG Ambient ratio\n", 1);
-	scene->ambient.color = get_rgb(element[2], "WRONG Ambient color\n");
-	printf("get ambient : %s %f %f,%f,%f\n", element[0], scene->ambient.ratio, scene->ambient.color.x, scene->ambient.color.y, scene->ambient.color.z);
+	scene->ambient.color = read_rgb(element[2], "WRONG Ambient color\n");
 }
 
 void	free_split(char **splited)
@@ -265,7 +261,12 @@ int	ft_isrgb(double color)
 	return (color >= 0.0 && color < 256.0);
 }
 
-t_color	get_rgb(char *rgb, const char *errmsg)
+int	ft_isunit(double xyz)
+{
+	return (xyz >= -1.0 && xyz <= 1.0);
+}
+
+t_color	read_rgb(char *rgb, const char *errmsg)
 {
 	t_color	color;
 	char	**rgbs;
@@ -286,4 +287,61 @@ t_color	get_rgb(char *rgb, const char *errmsg)
 		ft_error(errmsg, 1);
 	free_split(rgbs);
 	return (color);
+}
+
+t_vec	read_vec(char *vec, const char *errmsg)
+{
+	t_vec	vunit;
+	char	**xyz;
+	int		i;
+
+	xyz = ft_split(vec, ',');
+	i = 0;
+	while (xyz[i])
+	{
+		if (!ft_isdouble(xyz[i]))
+			ft_error(errmsg, 1);
+		i += 1;
+	}
+	if (i != 3)
+		ft_error(errmsg, 1);
+	vunit = vec3(ft_atod(xyz[0]), ft_atod(xyz[1]), ft_atod(xyz[2]));
+	if (!ft_isunit(vunit.x) || !ft_isunit(vunit.y) || !ft_isunit(vunit.z))
+		ft_error(errmsg, 1);
+	free_split(xyz);
+	return (vunit);
+}
+
+t_point	read_coor(char *coor, const char *errmsg)
+{
+	t_point	point;
+	char	**xyz;
+	int		i;
+
+	xyz = ft_split(coor, ',');
+	i = 0;
+	while (xyz[i])
+	{
+		if (!ft_isdouble(xyz[i]))
+			ft_error(errmsg, 1);
+		i += 1;
+	}
+	if (i != 3)
+		ft_error(errmsg, 1);
+	point = point3(ft_atod(xyz[0]), ft_atod(xyz[1]), ft_atod(xyz[2]));
+	free_split(xyz);
+	return (point);
+}
+
+void	read_camera(char **element, t_scene *scene)
+{
+	if (!element[1] || !element[2] || !element[3] || element[4])
+		ft_error("C [COOR] [ORIENTATION] [FOV]\n", 1);
+	scene->camera.coor = read_coor(element[1], "WRONG Camera coordinate\n");
+	scene->camera.orientation = read_vec(element[2], "WRONG Camera vector\n");
+	if (!ft_isint(element[3]))
+		ft_error("WRONG Camera FOV\n", 1);
+	scene->camera.fov = ft_atoi(element[3]);
+	if (scene->camera.fov < 0 || scene->camera.fov > 180)
+		ft_error("WRONG Camera FOV\n", 1);
 }

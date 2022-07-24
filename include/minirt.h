@@ -123,9 +123,12 @@ t_vec	vdivide(t_vec vec1, t_vec vec2);
 t_vec	vmin(t_vec vec1, t_vec vec2);
 // parsing
 t_scene	*init_scene(const char *file);
-t_color	get_rgb(char *rgb, const char *errmsg);
-void	get_element(char *line, t_scene *scene);
-void	get_ambient(char **element, t_scene *scene);
+t_vec	read_vec(char *vec, const char *errmsg);
+t_point	read_coor(char *coor, const char *errmsg);
+t_color	read_rgb(char *rgb, const char *errmsg);
+void	read_element(char *line, t_scene *scene);
+void	read_ambient(char **element, t_scene *scene);
+void	read_camera(char **element, t_scene *scene);
 // utils
 void	ft_error(const char *errmsg, int errcode);
 double	ft_atod(char *str);
