@@ -9,7 +9,7 @@ int	main(int argc, char *argv[])
 	if (argc != 2)
 		ft_error("USAGE : \"./miniRT [MAP.rt]\"\n", 1);
 	scene = init_scene(argv[1]);
-	// (void)scene;
+	(void)scene;
 	return (0);
 }
 
@@ -94,6 +94,7 @@ t_vec	vouter(t_vec vec1, t_vec vec2)
 	outer.x = vec1.y * vec2.z - vec1.z * vec2.y;
 	outer.y = vec1.z * vec2.x - vec1.x * vec2.z;
 	outer.z = vec1.x * vec2.y - vec1.y * vec2.x;
+	return (outer);
 }
 
 t_vec	vunit(t_vec vec)
@@ -164,6 +165,8 @@ t_scene	*init_scene(const char *file)
 		line = get_next_line(fd);
 		if (!line)
 			break ;
+		if (line[ft_strlen(line) - 1] == '\n')
+			line[ft_strlen(line) - 1] = '\0';
 		get_element(line, scene);
 		free(line);
 	}
@@ -172,22 +175,26 @@ t_scene	*init_scene(const char *file)
 
 void	get_element(char *line, t_scene *scene)
 {
-	const char	**element = ft_split(line, ' ');
+	char	**element;
 
+	element = ft_split(line, ' ');
+	printf("split element %s %s %s\n", element[0], element[1], element[2]);
 	if (!element[0])
-		;
-	else if (ft_strncmp(element[0], "A", -1))
+		printf("hello\n");
+	else if (!ft_strncmp(element[0], "A", -1))
 		get_ambient(element, scene);
-	else if (ft_strncmp(element[0], "C", -1))
+		// printf("hi\n");
+	else if (!ft_strncmp(element[0], "C", -1))
 		;
-	else if (ft_strncmp(element[0], "L", -1))
+	else if (!ft_strncmp(element[0], "L", -1))
 		;
-	else if (ft_strncmp(element[0], "sp", -1))
+	else if (!ft_strncmp(element[0], "sp", -1))
 		;
-	else if (ft_strncmp(element[0], "pl", -1))
+	else if (!ft_strncmp(element[0], "pl", -1))
 		;
-	else if (ft_strncmp(element[0], "cy", -1))
+	else if (!ft_strncmp(element[0], "cy", -1))
 		;
+	printf("print ambient : %s %f %f,%f,%f\n", element[0], scene->ambient.ratio, scene->ambient.color.x, scene->ambient.color.y, scene->ambient.color.z);
 	free_split(element);
 }
 
@@ -195,13 +202,13 @@ void	get_ambient(char **element, t_scene *scene)
 {
 	if (!element[1] || !element[2] || element[3])
 		ft_error("A [RATIO] [R,G,B]\n", 1);
-	if (ft_isnum(element[1]))
-		scene->ambient.ratio = ft_atod(element[1]);
-	else
+	if (!ft_isdouble(element[1]))
 		ft_error("WRONG Ambient ratio\n", 1);
-	scene->ambient.color = get_rgb(element[2], "WRONG Ambient color\n");
+	scene->ambient.ratio = ft_atod(element[1]);
 	if (scene->ambient.ratio < 0.0 || scene->ambient.ratio > 1.0)
 		ft_error("WRONG Ambient ratio\n", 1);
+	scene->ambient.color = get_rgb(element[2], "WRONG Ambient color\n");
+	printf("get ambient : %s %f %f,%f,%f\n", element[0], scene->ambient.ratio, scene->ambient.color.x, scene->ambient.color.y, scene->ambient.color.z);
 }
 
 void	free_split(char **splited)
@@ -215,10 +222,9 @@ void	free_split(char **splited)
 		i += 1;
 	}
 	free(splited);
-	return (0);
 }
 
-int	ft_isnum(char *str)
+int	ft_isdouble(char *str)
 {
 	int	point;
 
@@ -235,6 +241,21 @@ int	ft_isnum(char *str)
 			point += 1;
 		if (*str == '.' && point > 1)
 			return (FALSE);
+		str += 1;
+	}
+	return (TRUE);
+}
+
+int	ft_isint(char *str)
+{
+	if (*str == '+' || *str == '-')
+		str++;
+	if (!*str)
+		return (FALSE);
+	while (*str)
+	{
+		if (!ft_isdigit(*str++))
+			return (FALSE);
 	}
 	return (TRUE);
 }
@@ -246,14 +267,15 @@ int	ft_isrgb(double color)
 
 t_color	get_rgb(char *rgb, const char *errmsg)
 {
-	t_color		color;
-	const char	**rgbs = ft_split(rgb, ',');
-	int			i;
+	t_color	color;
+	char	**rgbs;
+	int		i;
 
+	rgbs = ft_split(rgb, ',');
 	i = 0;
 	while (rgbs[i])
 	{
-		if (!ft_isnum(rgbs[i]))
+		if (!ft_isint(rgbs[i]))
 			ft_error(errmsg, 1);
 		i += 1;
 	}

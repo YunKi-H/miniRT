@@ -125,10 +125,13 @@ t_vec	vmin(t_vec vec1, t_vec vec2);
 t_scene	*init_scene(const char *file);
 t_color	get_rgb(char *rgb, const char *errmsg);
 void	get_element(char *line, t_scene *scene);
+void	get_ambient(char **element, t_scene *scene);
 // utils
 void	ft_error(const char *errmsg, int errcode);
 double	ft_atod(char *str);
 void	free_split(char **splited);
+int		ft_isdouble(char *str);
+int		ft_isint(char *str);
 int		ft_isrgb(double color);
 
 #endif

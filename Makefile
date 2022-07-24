@@ -8,7 +8,8 @@ CC				=	cc
 CFLAGS			=	-Wall -Wextra -Werror
 RM				=	rm -f
 
-SRCS			=	minirt.c	\
+SRCS			=	minirt.c		\
+					get_next_line.c	\
 
 OBJS			=	$(SRCS:.c=.o)
 
