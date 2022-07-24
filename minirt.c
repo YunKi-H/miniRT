@@ -322,7 +322,7 @@ t_point	read_coor(char *coor, const char *errmsg)
 	i = 0;
 	while (xyz[i])
 	{
-		if (!ft_isdouble(xyz[i]) && !ft_isint(xyz[i]))
+		if (!ft_isdouble(xyz[i]))
 			ft_error(errmsg, 1);
 		i += 1;
 	}
