@@ -10,6 +10,7 @@ RM				=	rm -f
 
 SRCS			=	minirt.c		\
 					get_next_line.c	\
+					debug.c			\
 
 OBJS			=	$(SRCS:.c=.o)
 

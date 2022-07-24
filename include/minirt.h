@@ -144,4 +144,7 @@ int		ft_isint(char *str);
 int		ft_isrgb(double color);
 int		ft_isunit(double xyz);
 
+// debug
+void	print_scene(t_scene *s);
+
 #endif
