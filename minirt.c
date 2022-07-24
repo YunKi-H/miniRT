@@ -7,7 +7,7 @@ int	main(int argc, char *argv[])
 	// (void)argc;
 	// (void)argv;
 	if (argc != 2)
-		ft_error("USAGE : \"./so_long [MAP.rt]\"\n", 1);
+		ft_error("USAGE : \"./miniRT [MAP.rt]\"\n", 1);
 	scene = init_scene(argv[1]);
 	// (void)scene;
 	return (0);
@@ -157,5 +157,111 @@ t_scene	*init_scene(const char *file)
 	if (fd == -1)
 		ft_error("No such file or directory\n", 2);
 	scene = (t_scene *)ft_calloc(1, sizeof(t_scene));
+	if (!scene)
+		ft_error("MALLOC FAILED\n", 1);
+	while (TRUE)
+	{
+		line = get_next_line(fd);
+		if (!line)
+			break ;
+		get_element(line, scene);
+		free(line);
+	}
 	return (scene);
+}
+
+void	get_element(char *line, t_scene *scene)
+{
+	const char	**element = ft_split(line, ' ');
+
+	if (!element[0])
+		;
+	else if (ft_strncmp(element[0], "A", -1))
+		get_ambient(element, scene);
+	else if (ft_strncmp(element[0], "C", -1))
+		;
+	else if (ft_strncmp(element[0], "L", -1))
+		;
+	else if (ft_strncmp(element[0], "sp", -1))
+		;
+	else if (ft_strncmp(element[0], "pl", -1))
+		;
+	else if (ft_strncmp(element[0], "cy", -1))
+		;
+	free_split(element);
+}
+
+void	get_ambient(char **element, t_scene *scene)
+{
+	if (!element[1] || !element[2] || element[3])
+		ft_error("A [RATIO] [R,G,B]\n", 1);
+	if (ft_isnum(element[1]))
+		scene->ambient.ratio = ft_atod(element[1]);
+	else
+		ft_error("WRONG Ambient ratio\n", 1);
+	scene->ambient.color = get_rgb(element[2], "WRONG Ambient color\n");
+	if (scene->ambient.ratio < 0.0 || scene->ambient.ratio > 1.0)
+		ft_error("WRONG Ambient ratio\n", 1);
+}
+
+void	free_split(char **splited)
+{
+	int	i;
+
+	i = 0;
+	while (splited[i])
+	{
+		free(splited[i]);
+		i += 1;
+	}
+	free(splited);
+	return (0);
+}
+
+int	ft_isnum(char *str)
+{
+	int	point;
+
+	point = 0;
+	if (*str == '+' || *str == '-')
+		str++;
+	if (!*str)
+		return (FALSE);
+	while (*str)
+	{
+		if (!ft_isdigit(*str) && *str != '.')
+			return (FALSE);
+		if (*str == '.')
+			point += 1;
+		if (*str == '.' && point > 1)
+			return (FALSE);
+	}
+	return (TRUE);
+}
+
+int	ft_isrgb(double color)
+{
+	return (color >= 0.0 && color < 256.0);
+}
+
+t_color	get_rgb(char *rgb, const char *errmsg)
+{
+	t_color		color;
+	const char	**rgbs = ft_split(rgb, ',');
+	int			i;
+
+	i = 0;
+	while (rgbs[i])
+	{
+		if (!ft_isnum(rgbs[i]))
+			ft_error(errmsg, 1);
+		i += 1;
+	}
+	if (i != 3)
+		ft_error(errmsg, 1);
+	color = color3(ft_atod(rgbs[0]), ft_atod(rgbs[1]), ft_atod(rgbs[2]));
+	if (!ft_isrgb(color.x) || !ft_isrgb(color.y) || !ft_isrgb(color.z))
+		ft_error(errmsg, 1);
+	free_split(rgbs);
+	return (color);
 }
