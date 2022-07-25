@@ -6,10 +6,10 @@ int	main(int argc, char *argv[])
 
 	// (void)argc;
 	// (void)argv;
-	if (argc != 2)
+	if (argc != 2 || !ft_strrchr(argv[1], '.') || ft_strncmp(ft_strrchr(argv[1], '.'), ".rt", -1))
 		ft_error("USAGE : \"./miniRT [MAP.rt]\"\n", 1);
 	scene = init_scene(argv[1]);
-	// print_scene(scene);
+	print_scene(scene);
 	return (0);
 }
 
@@ -192,6 +192,8 @@ void	read_element(char *line, t_scene *scene)
 		read_plane(element, scene);
 	else if (!ft_strncmp(element[0], "cy", -1))
 		read_cylinder(element, scene);
+	else
+		ft_error("WRONG Argument identifier\n", 1);
 	free_split(element);
 }
 
@@ -400,6 +402,8 @@ void	read_sphere(char **element, t_scene *scene)
 		ft_error("WRONG Sphere diameter\n", 1);
 	sphere->radius = ft_atod(element[2]) / 2.0;
 	sphere->color = read_rgb(element[3], "WRONG Sphere color\n");
+	if (sphere->radius < 0.0)
+		ft_error("WRONG Sphere diameter\n", 1);
 	obj_add_back(scene, object(SPHERE, sphere));
 }
 
@@ -430,11 +434,15 @@ void	read_cylinder(char **elem, t_scene *scene)
 	cy->coor = read_coor(elem[1], "WRONG Cylinder coordinate\n");
 	cy->orientation = read_vec(elem[2], "WRONG Cylinder vector\n");
 	if (!ft_isdouble(elem[3]))
-		ft_error("WRONG Sphere diameter\n", 1);
+		ft_error("WRONG Cylinder diameter\n", 1);
 	cy->radius = ft_atod(elem[3]) / 2.0;
 	if (!ft_isdouble(elem[4]))
-		ft_error("WRONG Sphere height\n", 1);
+		ft_error("WRONG Cylinder height\n", 1);
 	cy->height = ft_atod(elem[4]);
 	cy->color = read_rgb(elem[5], "WRONG Cylinder color\n");
+	if (cy->radius < 0.0)
+		ft_error("WRONG Cylinder diameter\n", 1);
+	if (cy->height < 0.0)
+		ft_error("WRONG Cylinder height\n", 1);
 	obj_add_back(scene, object(CYLINDER, cy));
 }
