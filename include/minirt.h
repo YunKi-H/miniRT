@@ -15,6 +15,7 @@
 // sqrt pow fmax ..
 # include "../../libft/libft.h"
 # include "get_next_line.h"
+# include "../minilibx_mms/mlx.h"
 
 typedef struct s_vec		t_vec;
 typedef struct s_vec		t_point;

@@ -4,12 +4,11 @@ int	main(int argc, char *argv[])
 {
 	t_scene *scene;
 
-	// (void)argc;
-	// (void)argv;
 	if (argc != 2 || !ft_strrchr(argv[1], '.') || ft_strncmp(ft_strrchr(argv[1], '.'), ".rt", -1))
 		ft_error("USAGE : \"./miniRT [MAP.rt]\"\n", 1);
 	scene = init_scene(argv[1]);
 	print_scene(scene);
+	mlx_loop(scene->mlx);
 	return (0);
 }
 
@@ -170,6 +169,8 @@ t_scene	*init_scene(const char *file)
 		read_element(line, scene);
 		free(line);
 	}
+	scene->mlx = mlx_init();
+	scene->win = mlx_new_window(scene->mlx, 1080, 720, "miniRT");
 	return (scene);
 }
 
