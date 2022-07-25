@@ -37,9 +37,12 @@ enum e_bool
 
 enum e_type
 {
-	SPHERE = 1,
-	PLANE,
-	CYLINDER
+	AMBIENT = 1 << 0,
+	CAMERA = 1 << 1,
+	LIGHT = 1 << 2,
+	SPHERE = 1 << 3,
+	PLANE = 1 << 4,
+	CYLINDER = 1 << 5
 };
 
 // struct
@@ -105,6 +108,7 @@ struct s_scene
 	t_camera	camera;
 	t_light		light;
 	t_obj		*objs;
+	int			environment;
 	void		*mlx;
 	void		*win;
 };
@@ -144,6 +148,7 @@ int		ft_isdouble(char *str);
 int		ft_isint(char *str);
 int		ft_isrgb(double color);
 int		ft_isunit(double xyz);
+void	check_environment(int flag);
 
 // debug
 void	print_scene(t_scene *s);

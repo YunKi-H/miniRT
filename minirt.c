@@ -169,9 +169,21 @@ t_scene	*init_scene(const char *file)
 		read_element(line, scene);
 		free(line);
 	}
+	check_environment(scene->environment);
 	scene->mlx = mlx_init();
 	scene->win = mlx_new_window(scene->mlx, 1080, 720, "miniRT");
+	// mlx_get_data_addr();
 	return (scene);
+}
+
+void	check_environment(int flag)
+{
+	if ((flag & AMBIENT) == 0)
+		ft_error("THERE IS NO AMBIENT\n", 1);
+	if ((flag & CAMERA) == 0)
+		ft_error("THERE IS NO CAMERA\n", 1);
+	if ((flag & LIGHT) == 0)
+		ft_error("THERE IS NO LIGHT\n", 1);
 }
 
 void	read_element(char *line, t_scene *scene)
@@ -208,6 +220,7 @@ void	read_ambient(char **element, t_scene *scene)
 	if (scene->ambient.ratio < 0.0 || scene->ambient.ratio > 1.0)
 		ft_error("WRONG Ambient ratio\n", 1);
 	scene->ambient.color = read_rgb(element[2], "WRONG Ambient color\n");
+	scene->environment |= AMBIENT;
 }
 
 void	free_split(char **splited)
@@ -311,6 +324,8 @@ t_vec	read_vec(char *vec, const char *errmsg)
 	vunit = vec3(ft_atod(xyz[0]), ft_atod(xyz[1]), ft_atod(xyz[2]));
 	if (!ft_isunit(vunit.x) || !ft_isunit(vunit.y) || !ft_isunit(vunit.z))
 		ft_error(errmsg, 1);
+	if (!vunit.x && !vunit.y && !vunit.z)
+		ft_error(errmsg, 1);
 	free_split(xyz);
 	return (vunit);
 }
@@ -345,8 +360,9 @@ void	read_camera(char **element, t_scene *scene)
 	if (!ft_isint(element[3]))
 		ft_error("WRONG Camera FOV\n", 1);
 	scene->camera.fov = ft_atoi(element[3]);
-	if (scene->camera.fov < 0 || scene->camera.fov > 180)
+	if (scene->camera.fov <= 0 || scene->camera.fov >= 180)
 		ft_error("WRONG Camera FOV\n", 1);
+	scene->environment |= CAMERA;
 }
 
 void	read_light(char **element, t_scene *scene)
@@ -359,6 +375,7 @@ void	read_light(char **element, t_scene *scene)
 	scene->light.ratio = ft_atod(element[2]);
 	if (scene->light.ratio < 0.0 || scene->light.ratio > 1.0)
 		ft_error("WRONG Light ratio\n", 1);
+	scene->environment |= LIGHT;
 }
 
 t_obj	*object(int type, void *element)
