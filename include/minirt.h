@@ -16,6 +16,10 @@
 # include "../../libft/libft.h"
 # include "get_next_line.h"
 # include "../minilibx_mms/mlx.h"
+# define WIDTH 1080
+# define HEIGHT 720
+# define KEY_ESC 53
+# define KEY_EXIT 17
 
 typedef struct s_vec		t_vec;
 typedef struct s_vec		t_point;
@@ -28,6 +32,7 @@ typedef struct s_plane		t_plane;
 typedef struct s_cylinder	t_cylinder;
 typedef struct s_scene		t_scene;
 typedef struct s_obj		t_obj;
+typedef struct s_image		t_image;
 
 enum e_bool
 {
@@ -102,6 +107,15 @@ struct s_obj
 	struct s_obj	*next;
 };
 
+struct s_image
+{
+	void	*img;
+	char	*addr;
+	int		bits_per_pixel;
+	int		size_line;
+	int		endian;
+};
+
 struct s_scene
 {
 	t_ambient	ambient;
@@ -111,6 +125,7 @@ struct s_scene
 	int			environment;
 	void		*mlx;
 	void		*win;
+	t_image		img;
 };
 
 // vectors
@@ -140,6 +155,12 @@ void	obj_add_back(t_scene *scene, t_obj *new);
 void	read_sphere(char **element, t_scene *scene);
 void	read_plane(char **element, t_scene *scene);
 void	read_cylinder(char **elem, t_scene *scene);
+void	check_environment(int flag);
+void	init_mlx(t_scene *scene);
+// mlx
+int		exit_minirt(t_scene *scene);
+void	mlx_set_exit(t_scene *scene);
+int		key_press(int key_code, t_scene *scene);
 // utils
 void	ft_error(const char *errmsg, int errcode);
 double	ft_atod(char *str);
@@ -148,7 +169,6 @@ int		ft_isdouble(char *str);
 int		ft_isint(char *str);
 int		ft_isrgb(double color);
 int		ft_isunit(double xyz);
-void	check_environment(int flag);
 
 // debug
 void	print_scene(t_scene *s);

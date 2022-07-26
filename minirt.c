@@ -7,7 +7,9 @@ int	main(int argc, char *argv[])
 	if (argc != 2 || !ft_strrchr(argv[1], '.') || ft_strncmp(ft_strrchr(argv[1], '.'), ".rt", -1))
 		ft_error("USAGE : \"./miniRT [MAP.rt]\"\n", 1);
 	scene = init_scene(argv[1]);
-	print_scene(scene);
+	// print_scene(scene); // check file reading
+	mlx_put_image_to_window(scene->mlx, scene->win, scene->img.img, 0, 0);
+	mlx_set_exit(scene);
 	mlx_loop(scene->mlx);
 	return (0);
 }
@@ -17,6 +19,26 @@ void	ft_error(const char *errmsg, int errcode)
 	write(2, "Error\n", 6);
 	write(2, errmsg, ft_strlen(errmsg));
 	exit(errcode);
+}
+
+int	exit_minirt(t_scene *scene)
+{
+	mlx_destroy_window(scene->mlx, scene->win);
+	exit(0);
+	return (0);
+}
+
+int	key_press(int key_code, t_scene *scene)
+{
+	if (key_code == KEY_ESC)
+		exit_minirt(scene);
+	return (0);
+}
+
+void	mlx_set_exit(t_scene *scene)
+{
+	mlx_key_hook(scene->win, &key_press, scene);
+	mlx_hook(scene->win, KEY_EXIT, 0, &exit_minirt, scene);
 }
 
 double	ft_atod(char *str)
@@ -170,10 +192,20 @@ t_scene	*init_scene(const char *file)
 		free(line);
 	}
 	check_environment(scene->environment);
-	scene->mlx = mlx_init();
-	scene->win = mlx_new_window(scene->mlx, 1080, 720, "miniRT");
-	// mlx_get_data_addr();
+	init_mlx(scene);
 	return (scene);
+}
+
+void	init_mlx(t_scene *scene)
+{
+	scene->mlx = mlx_init();
+	scene->win = mlx_new_window(scene->mlx, WIDTH, HEIGHT, "miniRT");
+	scene->img.img = mlx_new_image(scene->mlx, WIDTH, HEIGHT);
+	scene->img.addr = mlx_get_data_addr(
+		scene->img.img,
+		&scene->img.bits_per_pixel,
+		&scene->img.size_line,
+		&scene->img.endian);
 }
 
 void	check_environment(int flag)
