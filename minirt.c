@@ -23,6 +23,7 @@ void	ft_error(const char *errmsg, int errcode)
 
 int	exit_minirt(t_scene *scene)
 {
+	mlx_destroy_image(scene->mlx, scene->img.img);
 	mlx_destroy_window(scene->mlx, scene->win);
 	exit(0);
 	return (0);
@@ -191,6 +192,7 @@ t_scene	*init_scene(const char *file)
 		read_element(line, scene);
 		free(line);
 	}
+	close(fd);
 	check_environment(scene->environment);
 	init_mlx(scene);
 	return (scene);
@@ -198,7 +200,9 @@ t_scene	*init_scene(const char *file)
 
 void	init_mlx(t_scene *scene)
 {
+	// leaks_miniRT(1);
 	scene->mlx = mlx_init();
+	// leaks_miniRT(2);
 	scene->win = mlx_new_window(scene->mlx, WIDTH, HEIGHT, "miniRT");
 	scene->img.img = mlx_new_image(scene->mlx, WIDTH, HEIGHT);
 	scene->img.addr = mlx_get_data_addr(

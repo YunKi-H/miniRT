@@ -1,5 +1,16 @@
 #include "minirt.h"
 
+void	leaks_miniRT(int idx)
+{
+	for (int i = 0; i < 20; i++)
+		printf("%d", idx);
+	printf("\n");
+	system("leaks miniRT | grep LEAK");
+	for (int i = 0; i < 20; i++)
+		printf("%d", idx);
+	printf("\n");
+}
+
 void	print_scene(t_scene *s)
 {
 	printf(

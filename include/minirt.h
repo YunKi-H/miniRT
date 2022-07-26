@@ -172,5 +172,6 @@ int		ft_isunit(double xyz);
 
 // debug
 void	print_scene(t_scene *s);
+void	leaks_miniRT(int idx);
 
 #endif
