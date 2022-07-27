@@ -174,28 +174,68 @@ t_vec	vmin(t_vec vec1, t_vec vec2)
 t_scene	*init_scene(const char *file)
 {
 	t_scene		*scene;
-	const int	fd = open(file, O_RDONLY);
-	char		*line;
 
-	if (fd == -1)
-		ft_error("No such file or directory\n", 2);
 	scene = (t_scene *)ft_calloc(1, sizeof(t_scene));
 	if (!scene)
 		ft_error("MALLOC FAILED\n", 1);
+	get_element(file, scene);
+	init_viewport(scene);
+	init_mlx(scene);
+	return (scene);
+}
+
+void	init_viewport(t_scene *scene)
+{
+	const t_vec	cam = scene->camera.orientation;
+	t_vec		up;
+	t_point		temp;
+
+	if (cam.y == 1)
+		up = vec3(0, 0, 1);
+	else
+		up = vec3(0, 1, 0);
+	scene->viewport.origin = scene->camera.coor;
+	print_vec("camera.origin\t", scene->viewport.origin);
+	scene->viewport.horizontal = vunit(vouter(cam, up));
+	print_vec("viewport.horizontal\t", scene->viewport.horizontal);
+	scene->viewport.vertical = vunit(vouter(scene->viewport.horizontal, cam));
+	print_vec("viewport.vertical\t", scene->viewport.vertical);
+	scene->viewport.focal_len = WIDTH / 2 / get_tan(scene->camera.fov / 2);
+	temp = vplus(scene->viewport.origin, vmult(cam, vec3(scene->viewport.focal_len, scene->viewport.focal_len, scene->viewport.focal_len)));
+	print_vec("viewport.center\t", temp);
+	temp = vminus(temp, vmult(scene->viewport.horizontal, vec3(WIDTH / 2, WIDTH / 2, WIDTH / 2)));
+	print_vec("viewport.left_side\t", temp);
+	temp = vminus(temp, vmult(scene->viewport.vertical, vec3(HEIGHT / 2, HEIGHT / 2, HEIGHT / 2)));
+	print_vec("viewport.left_bottom\t", temp);
+	scene->viewport.left_bottom = temp;
+}
+
+double	get_tan(double	degree)
+{
+	return (tan(degree * (M_PI / 180)));
+}
+
+void	get_element(const char *file, t_scene *scene)
+{
+	const int	fd = open(file, O_RDONLY);
+	char		*line;
+	int			idx_newline;
+
+	if (fd == -1)
+		ft_error("No such file or directory\n", 2);
 	while (TRUE)
 	{
 		line = get_next_line(fd);
 		if (!line)
 			break ;
-		if (line[ft_strlen(line) - 1] == '\n')
-			line[ft_strlen(line) - 1] = '\0';
+		idx_newline = ft_strlen(line) - 1;
+		if (line[idx_newline] == '\n')
+			line[idx_newline] = '\0';
 		read_element(line, scene);
 		free(line);
 	}
 	close(fd);
 	check_environment(scene->environment);
-	init_mlx(scene);
-	return (scene);
 }
 
 void	init_mlx(t_scene *scene)
@@ -392,7 +432,7 @@ void	read_camera(char **element, t_scene *scene)
 	if (!element[1] || !element[2] || !element[3] || element[4])
 		ft_error("C [COOR] [ORIENTATION] [FOV]\n", 1);
 	scene->camera.coor = read_coor(element[1], "WRONG Camera coordinate\n");
-	scene->camera.orientation = read_vec(element[2], "WRONG Camera vector\n");
+	scene->camera.orientation = vunit(read_vec(element[2], "WRONG Camera vector\n"));
 	if (!ft_isint(element[3]))
 		ft_error("WRONG Camera FOV\n", 1);
 	scene->camera.fov = ft_atoi(element[3]);

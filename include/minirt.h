@@ -33,6 +33,7 @@ typedef struct s_cylinder	t_cylinder;
 typedef struct s_scene		t_scene;
 typedef struct s_obj		t_obj;
 typedef struct s_image		t_image;
+typedef struct s_viewport	t_viewport;
 
 enum e_bool
 {
@@ -116,6 +117,15 @@ struct s_image
 	int		endian;
 };
 
+struct s_viewport
+{
+	t_point	origin;
+	t_vec	horizontal;
+	t_vec	vertical;
+	double	focal_len;
+	t_point	left_bottom;
+};
+
 struct s_scene
 {
 	t_ambient	ambient;
@@ -123,6 +133,7 @@ struct s_scene
 	t_light		light;
 	t_obj		*objs;
 	int			environment;
+	t_viewport	viewport;
 	void		*mlx;
 	void		*win;
 	t_image		img;
@@ -143,6 +154,7 @@ t_vec	vdivide(t_vec vec1, t_vec vec2);
 t_vec	vmin(t_vec vec1, t_vec vec2);
 // parsing
 t_scene	*init_scene(const char *file);
+void	get_element(const char *file, t_scene *scene);
 t_vec	read_vec(char *vec, const char *errmsg);
 t_point	read_coor(char *coor, const char *errmsg);
 t_color	read_rgb(char *rgb, const char *errmsg);
@@ -156,6 +168,7 @@ void	read_sphere(char **element, t_scene *scene);
 void	read_plane(char **element, t_scene *scene);
 void	read_cylinder(char **elem, t_scene *scene);
 void	check_environment(int flag);
+void	init_viewport(t_scene *scene);
 void	init_mlx(t_scene *scene);
 // mlx
 int		exit_minirt(t_scene *scene);
@@ -169,9 +182,11 @@ int		ft_isdouble(char *str);
 int		ft_isint(char *str);
 int		ft_isrgb(double color);
 int		ft_isunit(double xyz);
+double	get_tan(double	degree);
 
 // debug
 void	print_scene(t_scene *s);
 void	leaks_miniRT(int idx);
+void	print_vec(char *str, t_vec vec);
 
 #endif

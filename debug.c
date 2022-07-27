@@ -1,11 +1,16 @@
 #include "minirt.h"
 
+void	print_vec(char *str, t_vec vec)
+{
+	printf("%s x : %f, y : %f, z : %f\n", str, vec.x, vec.y, vec.z);
+}
+
 void	leaks_miniRT(int idx)
 {
 	for (int i = 0; i < 20; i++)
 		printf("%d", idx);
 	printf("\n");
-	system("leaks miniRT | grep LEAK");
+	system("leaks miniRT");
 	for (int i = 0; i < 20; i++)
 		printf("%d", idx);
 	printf("\n");

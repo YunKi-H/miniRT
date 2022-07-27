@@ -5,7 +5,7 @@ MINILIBXDIR		=	./minilibx_mms
 MINILIBXLIB		=	libmlx.dylib
 
 CC				=	cc
-CFLAGS			=	-Wall -Wextra -Werror #-fsanitize=address -g
+CFLAGS			=	-Wall -Wextra -Werror# -fsanitize=address -g
 RM				=	rm -f
 
 SRCS			=	minirt.c		\
