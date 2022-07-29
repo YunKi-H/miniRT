@@ -95,7 +95,6 @@ struct s_scene
 	t_color3		ambient;
 	t_ray			ray;
 	t_hit_record	rec;
-
 };
 
 void		write_color(t_color3 pixel_color);

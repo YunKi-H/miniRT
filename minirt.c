@@ -8,6 +8,7 @@ int	main(int argc, char *argv[])
 		ft_error("USAGE : \"./miniRT [MAP.rt]\"\n", 1);
 	scene = init_scene(argv[1]);
 	// print_scene(scene); // check file reading
+	draw_scene(scene);
 	mlx_put_image_to_window(scene->mlx, scene->win, scene->img.img, 0, 0);
 	mlx_set_exit(scene);
 	mlx_loop(scene->mlx);
@@ -169,6 +170,25 @@ t_vec	vmin(t_vec vec1, t_vec vec2)
 	if (vec1.z > vec2.z)
 		vec1.z = vec2.z;
 	return (vec1);
+}
+
+t_ray	ray(t_point	origin, t_vec	direction)
+{
+	t_ray	ray;
+
+	ray.origin = origin;
+	ray.direction = vunit(direction);
+	return (ray);
+}
+
+t_point	ray_at(t_ray *ray, double t)
+{
+	t_point	at;
+	t_vec	len;
+
+	len = vmult(ray->direction, vec3(t, t, t));
+	at = vplus(ray->origin, len);
+	return (at);
 }
 
 t_scene	*init_scene(const char *file)
@@ -539,4 +559,136 @@ void	read_cylinder(char **elem, t_scene *scene)
 	if (cy->height < 0.0)
 		ft_error("WRONG Cylinder height\n", 1);
 	obj_add_back(scene, object(CYLINDER, cy));
+}
+
+void	draw_scene(t_scene *scene)
+{
+	int		x;
+	int		y;
+	t_ray	ray;
+	int		rgb;
+
+	y = 0;
+	while (y < HEIGHT)
+	{
+		x = 0;
+		while (x < WIDTH)
+		{
+			ray = ray_primary(scene->viewport, x, y);
+			// print_vec("ray :", ray.direction);
+			rgb = get_rgb(ray_color(ray, scene));
+			put_pixel_on_img(&scene->img, x, y, rgb);
+			x += 1;
+		}
+		y += 1;
+	}
+}
+
+t_ray	ray_primary(t_viewport viewport, int x, int y)
+{
+	t_ray	ray;
+	t_point	point;
+	t_vec	temp;
+
+	ray.origin = viewport.origin;
+	point = viewport.left_bottom;
+	temp = vmult(viewport.horizontal, vec3(x, x, x));
+	point = vplus(point, temp);
+	temp = vmult(viewport.vertical, vec3(y, y, y));
+	point = vplus(point, temp);
+	ray.direction = vminus(point, ray.origin);
+	return (ray);
+}
+
+t_color ray_color(t_ray ray, t_scene *scene)
+{
+	t_hit_record	rec;
+
+	rec.tmin = EPSILON;
+	rec.tmax = INFINITY;
+	if (hit(scene->objs, &ray, &rec))
+		return (phong_lightning(scene, rec));
+	return (color3(255, 255, 255));
+}
+
+void	put_pixel_on_img(t_image *img, int x, int y, int color)
+{
+	char	*dst;
+
+	dst = img->addr + (y * img->size_line + x * (img->bits_per_pixel / 8));
+	*(unsigned int*)dst = color;
+}
+
+int	get_rgb(t_color color)
+{
+	int	rgb;
+
+	rgb = 0;
+	rgb |= (int)color.x << 16;
+	rgb |= (int)color.y << 8;
+	rgb |= (int)color.z;
+	return (rgb);
+}
+
+int	hit(t_obj *objs, t_ray *ray, t_hit_record *rec)
+{
+	t_obj	*obj;
+	int		hit_anything;
+
+	obj = objs;
+	hit_anything = 0;
+	while (obj)
+	{
+		if (obj->type == PLANE)
+			hit_anything |= hit_plane(obj->element, ray, rec);
+		if (obj->type == SPHERE)
+			hit_anything |= hit_sphere(obj->element, ray, rec);
+		if (obj->type == CYLINDER)
+			hit_anything |= hit_cylinder(obj->element, ray, rec);
+		obj = obj->next;
+	}
+	return (hit_anything);
+}
+
+int	hit_plane(t_plane *pl, t_ray *ray, t_hit_record *rec)
+{
+	return (1);
+}
+
+int	hit_sphere(t_sphere *sp, t_ray *ray, t_hit_record *rec)
+{
+	const t_vec		oc = vminus(ray->origin, sp->coor);
+	const double	a = vlen(ray->direction) * vlen(ray->direction);
+	const double	b = vinner(oc, ray->direction);
+	const double	c = vlen(oc) * vlen(oc) - sp->radius * sp->radius;
+	const double	discriminant = b * b - a * c;
+	const double	sqrtd = sqrt(discriminant);
+	double			root = (-b - sqrtd) / a;
+
+	if (discriminant < 0)
+		return (0);
+	if (root < rec->tmin || root > rec->tmax)
+	{
+		root = (-b + sqrtd) / a;
+		if (root < rec->tmin || root > rec->tmax)
+			return (0);
+	}
+	rec->t = root;
+	rec->p = ray_at(ray, root);
+	rec->normal = vdivide(vminus(rec->p, sp->coor), vec3(sp->radius, sp->radius, sp->radius));
+	rec->front_face = vinner(ray->direction, rec->normal) < 0;
+	if (!rec->front_face)
+		vmult(rec->normal, vec3(-1, -1, -1));
+	rec->albedo = sp->color;
+	return (1);
+}
+
+int	hit_cylinder(t_cylinder *cy, t_ray *ray, t_hit_record *rec)
+{
+	return (1);
+}
+
+t_color	phong_lightning(t_scene *scene, t_hit_record rec)
+{
+	return (color3(255, 0, 0));
 }

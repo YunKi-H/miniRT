@@ -20,6 +20,7 @@
 # define HEIGHT 720
 # define KEY_ESC 53
 # define KEY_EXIT 17
+# define EPSILON 1e-6
 
 typedef struct s_vec		t_vec;
 typedef struct s_vec		t_point;
@@ -27,6 +28,7 @@ typedef struct s_vec		t_color;
 typedef struct s_ambient	t_ambient;
 typedef struct s_camera		t_camera;
 typedef struct s_light		t_light;
+typedef struct s_ray		t_ray;
 typedef struct s_sphere		t_sphere;
 typedef struct s_plane		t_plane;
 typedef struct s_cylinder	t_cylinder;
@@ -34,6 +36,7 @@ typedef struct s_scene		t_scene;
 typedef struct s_obj		t_obj;
 typedef struct s_image		t_image;
 typedef struct s_viewport	t_viewport;
+typedef struct s_hit_record	t_hit_record;
 
 enum e_bool
 {
@@ -46,8 +49,8 @@ enum e_type
 	AMBIENT = 1 << 0,
 	CAMERA = 1 << 1,
 	LIGHT = 1 << 2,
-	SPHERE = 1 << 3,
-	PLANE = 1 << 4,
+	PLANE = 1 << 3,
+	SPHERE = 1 << 4,
 	CYLINDER = 1 << 5
 };
 
@@ -76,6 +79,12 @@ struct s_light
 {
 	t_point	coor;
 	double	ratio;
+};
+
+struct s_ray
+{
+	t_point	origin;
+	t_vec	direction;
 };
 
 struct s_sphere
@@ -126,17 +135,28 @@ struct s_viewport
 	t_point	left_bottom;
 };
 
+struct s_hit_record
+{
+	t_point	p;
+	t_vec	normal;
+	double	tmin;
+	double	tmax;
+	double	t;
+	int		front_face;
+	t_color	albedo;
+};
+
 struct s_scene
 {
-	t_ambient	ambient;
-	t_camera	camera;
-	t_light		light;
-	t_obj		*objs;
-	int			environment;
-	t_viewport	viewport;
-	void		*mlx;
-	void		*win;
-	t_image		img;
+	t_ambient		ambient;
+	t_camera		camera;
+	t_light			light;
+	t_obj			*objs;
+	int				environment;
+	t_viewport		viewport;
+	void			*mlx;
+	void			*win;
+	t_image			img;
 };
 
 // vectors
@@ -152,6 +172,9 @@ t_vec	vminus(t_vec vec1, t_vec vec2);
 t_vec	vmult(t_vec vec1, t_vec vec2);
 t_vec	vdivide(t_vec vec1, t_vec vec2);
 t_vec	vmin(t_vec vec1, t_vec vec2);
+// structs
+t_ray	ray(t_point	origin, t_vec	direction);
+t_point	ray_at(t_ray *ray, double t);
 // parsing
 t_scene	*init_scene(const char *file);
 void	get_element(const char *file, t_scene *scene);
@@ -170,6 +193,18 @@ void	read_cylinder(char **elem, t_scene *scene);
 void	check_environment(int flag);
 void	init_viewport(t_scene *scene);
 void	init_mlx(t_scene *scene);
+// drawing
+void	draw_scene(t_scene *scene);
+t_ray	ray_primary(t_viewport viewport, int x, int y);
+t_color ray_color(t_ray ray, t_scene *scene);
+void	put_pixel_on_img(t_image *img, int x, int y, int color);
+int		get_rgb(t_color color);
+// tracing
+int		hit(t_obj *objs, t_ray *ray, t_hit_record *rec);
+int		hit_plane(t_plane *pl, t_ray *ray, t_hit_record *rec);
+int		hit_sphere(t_sphere *sp, t_ray *ray, t_hit_record *rec);
+int		hit_cylinder(t_cylinder *cy, t_ray *ray, t_hit_record *rec);
+t_color	phong_lightning(t_scene *scene, t_hit_record rec);
 // mlx
 int		exit_minirt(t_scene *scene);
 void	mlx_set_exit(t_scene *scene);
