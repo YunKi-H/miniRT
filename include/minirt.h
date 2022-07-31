@@ -205,6 +205,7 @@ int		hit_plane(t_plane *pl, t_ray *ray, t_hit_record *rec);
 int		hit_sphere(t_sphere *sp, t_ray *ray, t_hit_record *rec);
 int		hit_cylinder(t_cylinder *cy, t_ray *ray, t_hit_record *rec);
 t_color	phong_lightning(t_scene *scene, t_hit_record rec);
+int		in_shadow(t_obj	*objs, t_ray light_ray, double light_len);
 // mlx
 int		exit_minirt(t_scene *scene);
 void	mlx_set_exit(t_scene *scene);

@@ -126,7 +126,10 @@ t_vec	vunit(t_vec vec)
 
 	if (len == 0)
 		ft_error("Divide by 0\n", 1);
-	return (vdivide(vec, vec3(len, len, len)));
+	vec.x /= len;
+	vec.y /= len;
+	vec.z /= len;
+	return (vec);
 }
 
 t_vec	vplus(t_vec vec1, t_vec vec2)
@@ -608,7 +611,7 @@ t_color ray_color(t_ray ray, t_scene *scene)
 	rec.tmax = INFINITY;
 	if (hit(scene->objs, &ray, &rec))
 		return (phong_lightning(scene, rec));
-	return (color3(255, 255, 255));
+	return (color3(0.0, 0.0, 0.0));
 }
 
 void	put_pixel_on_img(t_image *img, int x, int y, int color)
@@ -652,7 +655,23 @@ int	hit(t_obj *objs, t_ray *ray, t_hit_record *rec)
 
 int	hit_plane(t_plane *pl, t_ray *ray, t_hit_record *rec)
 {
-	return (1);
+	const double	denominator = vinner(pl->orientation, ray->direction);
+	double			root;
+
+	if (fabs(denominator) < EPSILON)
+		return (FALSE);
+	root = vinner(vminus(pl->coor, ray->origin), pl->orientation) / denominator;
+	if (root < rec->tmin || root > rec->tmax)
+		return (FALSE);
+	rec->t = root;
+	rec->tmax = rec->t;
+	rec->p = ray_at(ray, root);
+	rec->normal = pl->orientation;
+	rec->front_face = vinner(ray->direction, rec->normal) < 0;
+	if (!rec->front_face)
+		rec->normal = vmult(rec->normal, vec3(-1, -1, -1));
+	rec->albedo = pl->color;
+	return (TRUE);
 }
 
 int	hit_sphere(t_sphere *sp, t_ray *ray, t_hit_record *rec)
@@ -661,34 +680,69 @@ int	hit_sphere(t_sphere *sp, t_ray *ray, t_hit_record *rec)
 	const double	a = vlen(ray->direction) * vlen(ray->direction);
 	const double	b = vinner(oc, ray->direction);
 	const double	c = vlen(oc) * vlen(oc) - sp->radius * sp->radius;
-	const double	discriminant = b * b - a * c;
-	const double	sqrtd = sqrt(discriminant);
-	double			root = (-b - sqrtd) / a;
+	double			root;
 
-	if (discriminant < 0)
-		return (0);
+	if (b * b - a * c < 0)
+		return (FALSE);
+	root = (-b - sqrt(b * b - a * c)) / a;
 	if (root < rec->tmin || root > rec->tmax)
 	{
-		root = (-b + sqrtd) / a;
+		root = (-b + sqrt(b * b - a * c)) / a;
 		if (root < rec->tmin || root > rec->tmax)
-			return (0);
+			return (FALSE);
 	}
 	rec->t = root;
+	rec->tmax = rec->t;
 	rec->p = ray_at(ray, root);
 	rec->normal = vdivide(vminus(rec->p, sp->coor), vec3(sp->radius, sp->radius, sp->radius));
 	rec->front_face = vinner(ray->direction, rec->normal) < 0;
 	if (!rec->front_face)
-		vmult(rec->normal, vec3(-1, -1, -1));
+		rec->normal = vmult(rec->normal, vec3(-1, -1, -1));
 	rec->albedo = sp->color;
-	return (1);
+	return (TRUE);
 }
 
 int	hit_cylinder(t_cylinder *cy, t_ray *ray, t_hit_record *rec)
 {
-	return (1);
+	(void)cy;
+	(void)ray;
+	(void)rec;
+	return (TRUE);
 }
 
 t_color	phong_lightning(t_scene *scene, t_hit_record rec)
 {
-	return (color3(255, 0, 0));
+	t_vec		light_dir = vminus(scene->light.coor, rec.p);
+	double		light_len = vlen(light_dir);
+	const t_ray	light_ray = ray(vplus(rec.p, vmult(rec.normal, vec3(EPSILON, EPSILON, EPSILON))), light_dir);
+	t_color		ambient = vmult(scene->ambient.color, vec3(scene->ambient.ratio, scene->ambient.ratio, scene->ambient.ratio));
+	t_color		diffuse;
+	double		kd;
+
+	// print_vec("light.coor : ", scene->light.coor);
+	light_dir = vunit(light_dir);
+	kd = fmax(vinner(rec.normal, light_dir), 0.0);
+	// print_vec("ambient : ", ambient);
+	// print_vec("rec.normal : ", rec.normal);
+	// printf("vinner(rec.normal, light_dir) : %f\n", vinner(rec.normal, light_dir));
+	// printf("kd : %f\n", kd);
+	ambient = vmult(ambient, vec3(rec.albedo.x / 255, rec.albedo.y / 255, rec.albedo.z / 255));
+	diffuse = vmult(rec.albedo, vec3(kd, kd, kd));
+	diffuse = vmult(diffuse, vec3(scene->light.ratio, scene->light.ratio, scene->light.ratio));
+	if (in_shadow(scene->objs, light_ray, light_len))
+		diffuse = color3(0, 0, 0);
+	// print_vec("albedo : ", rec.albedo);
+	// print_vec("diffuse : ", diffuse);
+	return (vmin(vplus(diffuse, ambient), color3(255, 255, 255)));
+}
+
+int	in_shadow(t_obj	*objs, t_ray light_ray, double light_len)
+{
+	t_hit_record	rec;
+
+	rec.tmin = EPSILON;
+	rec.tmax = light_len;
+	if (hit(objs, &light_ray, &rec))
+		return (TRUE);
+	return (FALSE);
 }
