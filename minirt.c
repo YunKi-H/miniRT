@@ -534,7 +534,7 @@ void	read_plane(char **element, t_scene *scene)
 	if (!element[1] || !element[2] || !element[3] || element[4])
 		ft_error("pl [COOR] [ORIENTATION] [R,G,B]\n", 1);
 	plane->coor = read_coor(element[1], "WRONG Plane coordinate\n");
-	plane->orientation = read_vec(element[2], "WRONG Plane vector\n");
+	plane->orientation = vunit(read_vec(element[2], "WRONG Plane vector\n"));
 	plane->color = read_rgb(element[3], "WRONG Plane color\n");
 	obj_add_back(scene, object(PLANE, plane));
 }
@@ -549,7 +549,7 @@ void	read_cylinder(char **elem, t_scene *scene)
 	if (!elem[1] || !elem[2] || !elem[3] || !elem[4] || !elem[5] || elem[6])
 		ft_error("cy [COOR] [ORIENTATION] [DIAMETER] [HEIGHT] [R,G,B]\n", 1);
 	cy->coor = read_coor(elem[1], "WRONG Cylinder coordinate\n");
-	cy->orientation = read_vec(elem[2], "WRONG Cylinder vector\n");
+	cy->orientation = vunit(read_vec(elem[2], "WRONG Cylinder vector\n"));
 	if (!ft_isdouble(elem[3]))
 		ft_error("WRONG Cylinder diameter\n", 1);
 	cy->radius = ft_atod(elem[3]) / 2.0;
@@ -580,7 +580,7 @@ void	draw_scene(t_scene *scene)
 			ray = ray_primary(scene->viewport, x, y);
 			// print_vec("ray :", ray.direction);
 			rgb = get_rgb(ray_color(ray, scene));
-			put_pixel_on_img(&scene->img, x, y, rgb);
+			put_pixel_on_img(&scene->img, x, HEIGHT - 1 - y, rgb);
 			x += 1;
 		}
 		y += 1;
@@ -704,9 +704,38 @@ int	hit_sphere(t_sphere *sp, t_ray *ray, t_hit_record *rec)
 
 int	hit_cylinder(t_cylinder *cy, t_ray *ray, t_hit_record *rec)
 {
-	(void)cy;
-	(void)ray;
-	(void)rec;
+	double	discriminant;
+	double	a;
+	double	b;
+	double	c;
+	double	root;
+
+	t_vec	ch;
+	t_vec	w;
+
+	ch = cy->orientation;
+	w = vminus(ray->origin, cy->coor);
+	a = vinner(ray->direction, ray->direction) - powf(vinner(ray->direction, ch), 2);
+	b = vinner(ray->direction, w) - (vinner(ray->direction, ch) * vinner(w, ch));
+	c = vinner(w, w) - vinner(w, ch) * vinner(w, ch) - (cy->radius * cy->radius);
+	discriminant = b * b - a * c;
+	if (discriminant < 0)
+		return (FALSE);
+	root = (-b - sqrt(discriminant)) / a;
+	if (root < rec->tmin || root > rec->tmax || vinner(vminus(ray_at(ray, root), cy->coor), ch) < 0 || vinner(vminus(ray_at(ray, root), cy->coor), ch) > cy->height)
+	{
+		root = (-b + sqrt(discriminant)) / a;
+		if (root < rec->tmin || root > rec->tmax || vinner(vminus(ray_at(ray, root), cy->coor), ch) < 0 || vinner(vminus(ray_at(ray, root), cy->coor), ch) > cy->height)
+			return (FALSE);
+	}
+	rec->t = root;
+	rec->tmax = rec->t;
+	rec->p = ray_at(ray, root);
+	rec->normal = vunit(vouter(cy->orientation, vouter(vminus(rec->p, cy->coor), cy->orientation)));
+	rec->front_face = vinner(ray->direction, rec->normal) < 0;
+	if (!rec->front_face)
+		rec->normal = vmult(rec->normal, vec3(-1, -1, -1));
+	rec->albedo = cy->color;
 	return (TRUE);
 }
 
@@ -719,20 +748,13 @@ t_color	phong_lightning(t_scene *scene, t_hit_record rec)
 	t_color		diffuse;
 	double		kd;
 
-	// print_vec("light.coor : ", scene->light.coor);
 	light_dir = vunit(light_dir);
 	kd = fmax(vinner(rec.normal, light_dir), 0.0);
-	// print_vec("ambient : ", ambient);
-	// print_vec("rec.normal : ", rec.normal);
-	// printf("vinner(rec.normal, light_dir) : %f\n", vinner(rec.normal, light_dir));
-	// printf("kd : %f\n", kd);
 	ambient = vmult(ambient, vec3(rec.albedo.x / 255, rec.albedo.y / 255, rec.albedo.z / 255));
 	diffuse = vmult(rec.albedo, vec3(kd, kd, kd));
 	diffuse = vmult(diffuse, vec3(scene->light.ratio, scene->light.ratio, scene->light.ratio));
 	if (in_shadow(scene->objs, light_ray, light_len))
 		diffuse = color3(0, 0, 0);
-	// print_vec("albedo : ", rec.albedo);
-	// print_vec("diffuse : ", diffuse);
 	return (vmin(vplus(diffuse, ambient), color3(255, 255, 255)));
 }
 
