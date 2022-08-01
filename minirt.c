@@ -213,7 +213,7 @@ void	init_viewport(t_scene *scene)
 	t_vec		up;
 	t_point		temp;
 
-	if (cam.y == 1)
+	if (fabs(cam.x) < EPSILON && fabs(cam.z) < EPSILON)
 		up = vec3(0, 0, 1);
 	else
 		up = vec3(0, 1, 0);
