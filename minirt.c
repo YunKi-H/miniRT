@@ -715,7 +715,7 @@ int	hit_cylinder(t_cylinder *cy, t_ray *ray, t_hit_record *rec)
 
 	ch = cy->orientation;
 	w = vminus(ray->origin, cy->coor);
-	a = vinner(ray->direction, ray->direction) - powf(vinner(ray->direction, ch), 2);
+	a = vinner(ray->direction, ray->direction) - pow(vinner(ray->direction, ch), 2);
 	b = vinner(ray->direction, w) - (vinner(ray->direction, ch) * vinner(w, ch));
 	c = vinner(w, w) - vinner(w, ch) * vinner(w, ch) - (cy->radius * cy->radius);
 	discriminant = b * b - a * c;
@@ -724,6 +724,7 @@ int	hit_cylinder(t_cylinder *cy, t_ray *ray, t_hit_record *rec)
 	root = (-b - sqrt(discriminant)) / a;
 	if (root < rec->tmin || root > rec->tmax || vinner(vminus(ray_at(ray, root), cy->coor), ch) < 0 || vinner(vminus(ray_at(ray, root), cy->coor), ch) > cy->height)
 	{
+		// return (FALSE);
 		root = (-b + sqrt(discriminant)) / a;
 		if (root < rec->tmin || root > rec->tmax || vinner(vminus(ray_at(ray, root), cy->coor), ch) < 0 || vinner(vminus(ray_at(ray, root), cy->coor), ch) > cy->height)
 			return (FALSE);
@@ -731,7 +732,7 @@ int	hit_cylinder(t_cylinder *cy, t_ray *ray, t_hit_record *rec)
 	rec->t = root;
 	rec->tmax = rec->t;
 	rec->p = ray_at(ray, root);
-	rec->normal = vunit(vouter(cy->orientation, vouter(vminus(rec->p, cy->coor), cy->orientation)));
+	rec->normal = vouter(cy->orientation, vouter(vminus(rec->p, cy->coor), cy->orientation));
 	rec->front_face = vinner(ray->direction, rec->normal) < 0;
 	if (!rec->front_face)
 		rec->normal = vmult(rec->normal, vec3(-1, -1, -1));
@@ -749,8 +750,8 @@ t_color	phong_lightning(t_scene *scene, t_hit_record rec)
 	double		kd;
 
 	light_dir = vunit(light_dir);
-	kd = fmax(vinner(rec.normal, light_dir), 0.0);
 	ambient = vmult(ambient, vec3(rec.albedo.x / 255, rec.albedo.y / 255, rec.albedo.z / 255));
+	kd = fmax(vinner(rec.normal, light_dir), 0.0);
 	diffuse = vmult(rec.albedo, vec3(kd, kd, kd));
 	diffuse = vmult(diffuse, vec3(scene->light.ratio, scene->light.ratio, scene->light.ratio));
 	if (in_shadow(scene->objs, light_ray, light_len))
