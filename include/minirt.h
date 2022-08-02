@@ -6,7 +6,7 @@
 /*   By: yuhwang <yuhwang@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/08/02 14:10:28 by yuhwang           #+#    #+#             */
-/*   Updated: 2022/08/02 15:41:29 by yuhwang          ###   ########.fr       */
+/*   Updated: 2022/08/02 15:43:07 by yuhwang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,6 @@
 // malloc free exit
 # include <stdio.h>
 // printf perror
-# include <string.h>
-// strerror
 # include <fcntl.h>
 // open close
 # include <math.h>
