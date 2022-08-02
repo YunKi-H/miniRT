@@ -1,5 +1,5 @@
 NAME			=	miniRT
-LIBFTDIR		=	../libft
+LIBFTDIR		=	./libft
 LIBFTFILE		=	libft.a
 MINILIBXDIR		=	./minilibx_mms
 MINILIBXLIB		=	libmlx.dylib
