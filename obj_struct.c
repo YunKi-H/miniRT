@@ -1,29 +1,41 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minirt.c                                           :+:      :+:    :+:   */
+/*   obj_struct.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yuhwang <yuhwang@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/02 14:10:04 by yuhwang           #+#    #+#             */
-/*   Updated: 2022/08/02 14:36:58 by yuhwang          ###   ########.fr       */
+/*   Created: 2022/08/02 14:28:28 by yuhwang           #+#    #+#             */
+/*   Updated: 2022/08/02 14:28:37 by yuhwang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-int	main(int argc, char *argv[])
+t_obj	*object(int type, void *element)
 {
-	t_scene	*scene;
+	t_obj	*obj;
 
-	if (argc != 2 || \
-	!ft_strrchr(argv[1], '.') || \
-	ft_strncmp(ft_strrchr(argv[1], '.'), ".rt", -1))
-		ft_error("USAGE : \"./miniRT [MAP.rt]\"\n", 1);
-	scene = init_scene(argv[1]);
-	draw_scene(scene);
-	mlx_put_image_to_window(scene->mlx, scene->win, scene->img.img, 0, 0);
-	mlx_set_exit(scene);
-	mlx_loop(scene->mlx);
-	return (0);
+	obj = (t_obj *)malloc(sizeof(t_obj));
+	if (!obj)
+		ft_error("MALLOC FAILED\n", 1);
+	obj->type = type;
+	obj->element = element;
+	obj->next = NULL;
+	return (obj);
+}
+
+void	obj_add_back(t_scene *scene, t_obj *new)
+{
+	t_obj	*cur;
+
+	if (!scene->objs)
+		scene->objs = new;
+	else
+	{
+		cur = scene->objs;
+		while (cur->next)
+			cur = cur->next;
+		cur->next = new;
+	}
 }

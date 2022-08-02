@@ -1,29 +1,33 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minirt.c                                           :+:      :+:    :+:   */
+/*   hit.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yuhwang <yuhwang@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/02 14:10:04 by yuhwang           #+#    #+#             */
-/*   Updated: 2022/08/02 14:36:58 by yuhwang          ###   ########.fr       */
+/*   Created: 2022/08/02 14:31:10 by yuhwang           #+#    #+#             */
+/*   Updated: 2022/08/02 14:31:22 by yuhwang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-int	main(int argc, char *argv[])
+int	hit(t_obj *objs, t_ray *ray, t_hit_record *rec)
 {
-	t_scene	*scene;
+	t_obj	*obj;
+	int		hit_anything;
 
-	if (argc != 2 || \
-	!ft_strrchr(argv[1], '.') || \
-	ft_strncmp(ft_strrchr(argv[1], '.'), ".rt", -1))
-		ft_error("USAGE : \"./miniRT [MAP.rt]\"\n", 1);
-	scene = init_scene(argv[1]);
-	draw_scene(scene);
-	mlx_put_image_to_window(scene->mlx, scene->win, scene->img.img, 0, 0);
-	mlx_set_exit(scene);
-	mlx_loop(scene->mlx);
-	return (0);
+	obj = objs;
+	hit_anything = 0;
+	while (obj)
+	{
+		if (obj->type == PLANE)
+			hit_anything |= hit_plane(obj->element, ray, rec);
+		if (obj->type == SPHERE)
+			hit_anything |= hit_sphere(obj->element, ray, rec);
+		if (obj->type == CYLINDER)
+			hit_anything |= hit_cylinder(obj->element, ray, rec);
+		obj = obj->next;
+	}
+	return (hit_anything);
 }

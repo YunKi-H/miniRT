@@ -1,29 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   minirt.c                                           :+:      :+:    :+:   */
+/*   mlx_setting.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: yuhwang <yuhwang@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/02 14:10:04 by yuhwang           #+#    #+#             */
-/*   Updated: 2022/08/02 14:36:58 by yuhwang          ###   ########.fr       */
+/*   Created: 2022/08/02 14:25:14 by yuhwang           #+#    #+#             */
+/*   Updated: 2022/08/02 14:25:37 by yuhwang          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minirt.h"
 
-int	main(int argc, char *argv[])
+int	exit_minirt(t_scene *scene)
 {
-	t_scene	*scene;
-
-	if (argc != 2 || \
-	!ft_strrchr(argv[1], '.') || \
-	ft_strncmp(ft_strrchr(argv[1], '.'), ".rt", -1))
-		ft_error("USAGE : \"./miniRT [MAP.rt]\"\n", 1);
-	scene = init_scene(argv[1]);
-	draw_scene(scene);
-	mlx_put_image_to_window(scene->mlx, scene->win, scene->img.img, 0, 0);
-	mlx_set_exit(scene);
-	mlx_loop(scene->mlx);
+	mlx_destroy_image(scene->mlx, scene->img.img);
+	mlx_destroy_window(scene->mlx, scene->win);
+	exit(0);
 	return (0);
+}
+
+int	key_press(int key_code, t_scene *scene)
+{
+	if (key_code == KEY_ESC)
+		exit_minirt(scene);
+	return (0);
+}
+
+void	mlx_set_exit(t_scene *scene)
+{
+	mlx_key_hook(scene->win, &key_press, scene);
+	mlx_hook(scene->win, KEY_EXIT, 0, &exit_minirt, scene);
 }

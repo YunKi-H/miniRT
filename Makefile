@@ -8,9 +8,27 @@ CC				=	cc
 CFLAGS			=	-Wall -Wextra -Werror# -fsanitize=address -g
 RM				=	rm -f
 
-SRCS			=	minirt.c		\
-					get_next_line.c	\
-					debug.c			\
+SRCS			=	minirt.c				\
+					get_next_line.c			\
+					mlx_setting.c			\
+					drawing.c				\
+					ft_boolean.c			\
+					hit_cylinder.c			\
+					hit_plane.c				\
+					hit_sphere.c			\
+					hit.c					\
+					init.c					\
+					obj_struct.c			\
+					phong_lightning.c		\
+					ray.c					\
+					read_elements1.c		\
+					read_elements2.c		\
+					read_elements3.c		\
+					read_elements4.c		\
+					utils.c					\
+					vector_constructor.c	\
+					vector_operator1.c		\
+					vector_operator2.c		\
 
 OBJS			=	$(SRCS:.c=.o)
 

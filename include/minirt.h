@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minirt.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: yuhwang <yuhwang@student.42seoul.kr>       +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/08/02 14:10:28 by yuhwang           #+#    #+#             */
+/*   Updated: 2022/08/02 14:39:40 by yuhwang          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINIRT_H
 # define MINIRT_H
 
@@ -167,12 +179,13 @@ double	vlen(t_vec vec);
 double	vinner(t_vec vec1, t_vec vec2);
 t_vec	vouter(t_vec vec1, t_vec vec2);
 t_vec	vunit(t_vec vec);
+t_vec	vmin(t_vec vec1, t_vec vec2);
 t_vec	vplus(t_vec vec1, t_vec vec2);
 t_vec	vminus(t_vec vec1, t_vec vec2);
 t_vec	vmult(t_vec vec1, t_vec vec2);
 t_vec	vdivide(t_vec vec1, t_vec vec2);
-t_vec	vmin(t_vec vec1, t_vec vec2);
-// structs
+t_vec	vscale(t_vec vec, double t);
+// ray
 t_ray	ray(t_point	origin, t_vec	direction);
 t_point	ray_at(t_ray *ray, double t);
 // parsing
@@ -185,18 +198,18 @@ void	read_element(char *line, t_scene *scene);
 void	read_ambient(char **element, t_scene *scene);
 void	read_camera(char **element, t_scene *scene);
 void	read_light(char **element, t_scene *scene);
-t_obj	*object(int type, void *element);
-void	obj_add_back(t_scene *scene, t_obj *new);
 void	read_sphere(char **element, t_scene *scene);
 void	read_plane(char **element, t_scene *scene);
 void	read_cylinder(char **elem, t_scene *scene);
+t_obj	*object(int type, void *element);
+void	obj_add_back(t_scene *scene, t_obj *new);
 void	check_environment(int flag);
 void	init_viewport(t_scene *scene);
 void	init_mlx(t_scene *scene);
 // drawing
 void	draw_scene(t_scene *scene);
 t_ray	ray_primary(t_viewport viewport, int x, int y);
-t_color ray_color(t_ray ray, t_scene *scene);
+t_color	ray_color(t_ray ray, t_scene *scene);
 void	put_pixel_on_img(t_image *img, int x, int y, int color);
 int		get_rgb(t_color color);
 // tracing
@@ -214,15 +227,10 @@ int		key_press(int key_code, t_scene *scene);
 void	ft_error(const char *errmsg, int errcode);
 double	ft_atod(char *str);
 void	free_split(char **splited);
+double	get_tan(double degree);
 int		ft_isdouble(char *str);
 int		ft_isint(char *str);
 int		ft_isrgb(double color);
 int		ft_isunit(double xyz);
-double	get_tan(double	degree);
-
-// debug
-void	print_scene(t_scene *s);
-void	leaks_miniRT(int idx);
-void	print_vec(char *str, t_vec vec);
 
 #endif
